@@ -3,6 +3,7 @@ package com.springrestmvcproject.spring6restmvc.service;
 import com.springrestmvcproject.spring6restmvc.model.Beer;
 import com.springrestmvcproject.spring6restmvc.model.BeerStyle;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -71,5 +72,25 @@ public class BeerServiceImpl implements BeerService {
         log.debug("Get bear by id service initiated");
 
         return beerMap.get(id);
+    }
+
+
+    @Override
+    public Beer saveNewBeer(Beer beer){
+        Beer savedBeer = Beer.builder()
+                .id(UUID.randomUUID())
+                .createDate(LocalDateTime.now())
+                .updatedDate(LocalDateTime.now())
+                .beerName(beer.getBeerName())
+                .beerStyle(beer.getBeerStyle())
+                .quantityOnHand(beer.getQuantityOnHand())
+                .price(beer.getPrice())
+                .upc(beer.getUpc())
+                .build();
+
+        beerMap.put(savedBeer.getId(), savedBeer);
+
+
+        return savedBeer;
     }
 }
