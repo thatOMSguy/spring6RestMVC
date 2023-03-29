@@ -3,6 +3,7 @@ package com.springrestmvcproject.spring6restmvc.controller;
 
 
 import com.springrestmvcproject.spring6restmvc.model.Customer;
+import com.springrestmvcproject.spring6restmvc.model.Customer;
 import com.springrestmvcproject.spring6restmvc.service.CustomerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,14 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+
+    @PutMapping("{customerId}")
+    public ResponseEntity updateById(@PathVariable("customerId")UUID customerId, @RequestBody Customer Customer){
+        customerService.updateCustomerById(customerId, Customer);
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+
+    }
 
     @PostMapping
     public ResponseEntity handlePost(@RequestBody Customer customer){
