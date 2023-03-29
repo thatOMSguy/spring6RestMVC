@@ -1,6 +1,5 @@
 package com.springrestmvcproject.spring6restmvc.service;
 
-import com.springrestmvcproject.spring6restmvc.model.Beer;
 import com.springrestmvcproject.spring6restmvc.model.Customer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,5 +56,22 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer getCustomerById(UUID id) {
         return customerMap.get(id);
+    }
+
+
+    @Override
+    public Customer saveNewCustomer(Customer customer){
+        Customer savedCustomer = Customer.builder()
+                .id(UUID.randomUUID())
+                .customerName(customer.getCustomerName())
+                .version(customer.getVersion())
+                .updatedDate(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        customerMap.put(savedCustomer.getId(), savedCustomer);
+
+
+        return savedCustomer;
     }
 }
