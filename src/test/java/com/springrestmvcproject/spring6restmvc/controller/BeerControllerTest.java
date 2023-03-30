@@ -8,6 +8,7 @@ import com.springrestmvcproject.spring6restmvc.service.BeerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.print.attribute.standard.Media;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
@@ -35,22 +38,22 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class BeerControllerTest {
 
 
-//    @Autowired
-//    BeerController beerController;
-
     @Autowired
     MockMvc mockMvc;
 
-    //spring already has objectmapper configure within itself
     @Autowired
     ObjectMapper objectMapper;
 
-    //without mockbean we would get eception at runtime saying we dont have needed dependency here
-    //Its adding Beerservice as a mockito mock and by default mockito mocks and return null response
     @MockBean
     BeerService beerService;
 
     BeerServiceImpl beerServiceImpl;
+
+    @Captor
+    ArgumentCaptor<UUID> argumentCaptor;
+
+    @Captor
+    ArgumentCaptor<Beer> beerArgumentCaptor;
 
 
     @BeforeEach
@@ -111,7 +114,7 @@ class BeerControllerTest {
     void testUpdateBeer() throws Exception {
         Beer beer = beerServiceImpl.listBeers().get(0);
 
-        mockMvc.perform(put("/api/v1/beer/"+beer.getId())
+        mockMvc.perform(put("/api/v1/beer/" + beer.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(beer)))
@@ -125,14 +128,36 @@ class BeerControllerTest {
     void testDeleteBeer() throws Exception {
         Beer beer = beerServiceImpl.listBeers().get(0);
 
-        mockMvc.perform(delete("/api/v1/beer/"+beer.getId())
+        mockMvc.perform(delete("/api/v1/beer/" + beer.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(beer)))
                 .andExpect(status().isNoContent());
 
-        ArgumentCaptor<UUID> argumentCaptor = ArgumentCaptor.forClass(UUID.class);
         verify(beerService).deleteBeerById(argumentCaptor.capture());
 
         assertThat(beer.getId()).isEqualTo(argumentCaptor.getValue());
+    }
+
+    @Test
+    void testPatchUpdateBeer() throws Exception {
+        Beer beer = beerServiceImpl.listBeers().get(0);
+
+        Map<String, Object> beerMap = new HashMap<>();
+        beerMap.put("beerName", "New Name");
+
+        mockMvc.perform(patch("/api/v1/beer/" + beer.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beerMap)))
+
+                .andExpect(status().isNoContent());
+
+        verify(beerService).patchBeerById(argumentCaptor.capture(),
+                beerArgumentCaptor.capture());
+
+        assertThat(beer.getId()).isEqualTo(argumentCaptor.getValue());
+        System.out.println("captured value ===== > "+
+                beerArgumentCaptor.getValue().getBeerName());
+        assertThat(beerMap.get("beerName")).isEqualTo(beerArgumentCaptor.getValue().getBeerName());
     }
 }
