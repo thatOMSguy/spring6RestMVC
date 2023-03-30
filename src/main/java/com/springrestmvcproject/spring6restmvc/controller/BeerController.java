@@ -26,8 +26,7 @@ public class BeerController {
 
     public static final String BEER_PATH = "/api/v1/beer";
     public static final String BEER_PATH_LEADING_SLASH = "/api/v1/beer/";
-    public static final String BEER_PATH_ID = BEER_PATH+"/{beerId}";
-
+    public static final String BEER_PATH_ID = BEER_PATH + "/{beerId}";
 
 
     @PatchMapping(BEER_PATH_ID)
@@ -69,7 +68,7 @@ public class BeerController {
     }
 
 
-    @GetMapping( value =  BEER_PATH)
+    @GetMapping(value = BEER_PATH)
     public List<Beer> listBeers() {
 
         return beerService.listBeers();
@@ -83,6 +82,12 @@ public class BeerController {
         return beerService.getBeerById(beerId);
 
 
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity handleNotFountException() {
+        System.out.println("\n ------------------------------------------\n Handling Exceptions\n-------------------------------------------");
+        return ResponseEntity.notFound().build();
     }
 
 
