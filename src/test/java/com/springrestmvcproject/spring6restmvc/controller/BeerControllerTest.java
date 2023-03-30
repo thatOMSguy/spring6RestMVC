@@ -1,5 +1,7 @@
 package com.springrestmvcproject.spring6restmvc.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springrestmvcproject.spring6restmvc.model.Beer;
 import com.springrestmvcproject.spring6restmvc.service.BeerService;
 import com.springrestmvcproject.spring6restmvc.service.BeerServiceImpl;
@@ -67,6 +69,19 @@ class BeerControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()",is(3)));
+
+    }
+
+
+    @Test
+    void testCreateNewBeer() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+
+        Beer beer = beerServiceImpl.listBeers().get(0);
+        System.out.println(objectMapper.writeValueAsString(beer));
+
+
 
     }
 }
