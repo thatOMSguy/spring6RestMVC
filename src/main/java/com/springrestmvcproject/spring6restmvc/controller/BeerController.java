@@ -84,11 +84,7 @@ public class BeerController {
 
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity handleNotFountException() {
-        System.out.println("\n ------------------------------------------\n Handling Exceptions\n-------------------------------------------");
-        return ResponseEntity.notFound().build();
-    }
+
 
 
 }
