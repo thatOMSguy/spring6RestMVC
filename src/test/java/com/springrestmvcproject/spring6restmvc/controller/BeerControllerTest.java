@@ -36,6 +36,10 @@ class BeerControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    //spring already has objectmapper configure within itself
+    @Autowired
+    ObjectMapper objectMapper;
+
     //without mockbean we would get eception at runtime saying we dont have needed dependency here
     //Its adding Beerservice as a mockito mock and by default mockito mocks and return null response
     @MockBean
@@ -75,8 +79,6 @@ class BeerControllerTest {
 
     @Test
     void testCreateNewBeer() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
 
         Beer beer = beerServiceImpl.listBeers().get(0);
         System.out.println(objectMapper.writeValueAsString(beer));
