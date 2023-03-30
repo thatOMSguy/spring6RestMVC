@@ -3,7 +3,6 @@ package com.springrestmvcproject.spring6restmvc.service;
 import com.springrestmvcproject.spring6restmvc.model.Beer;
 import com.springrestmvcproject.spring6restmvc.model.BeerStyle;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -67,12 +66,12 @@ public class BeerServiceImpl implements BeerService {
 
 
     @Override
-    public Beer getBeerById(UUID id) {
+    public Optional<Beer> getBeerById(UUID id) {
 
 
         log.debug("Get bear by id service initiated");
 
-        return beerMap.get(id);
+        return Optional.of(beerMap.get(id));
     }
 
 

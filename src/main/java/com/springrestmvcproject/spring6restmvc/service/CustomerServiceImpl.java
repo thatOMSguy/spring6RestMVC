@@ -1,7 +1,6 @@
 package com.springrestmvcproject.spring6restmvc.service;
 
 import com.springrestmvcproject.spring6restmvc.model.Customer;
-import com.springrestmvcproject.spring6restmvc.model.Customer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -54,8 +53,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getCustomerById(UUID id) {
-        return customerMap.get(id);
+    public Optional<Customer> getCustomerById(UUID id) {
+        return Optional.of(customerMap.get(id));
     }
 
 
