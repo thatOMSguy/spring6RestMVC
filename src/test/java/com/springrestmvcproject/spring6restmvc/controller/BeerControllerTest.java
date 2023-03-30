@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springrestmvcproject.spring6restmvc.model.Beer;
 import com.springrestmvcproject.spring6restmvc.service.BeerService;
 import com.springrestmvcproject.spring6restmvc.service.BeerServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.print.attribute.standard.Media;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
@@ -45,8 +47,13 @@ class BeerControllerTest {
     @MockBean
     BeerService beerService;
 
-    BeerServiceImpl beerServiceImpl =new BeerServiceImpl();
+    BeerServiceImpl beerServiceImpl;
 
+
+    @BeforeEach
+    void setup() {
+        beerServiceImpl = new BeerServiceImpl();
+    }
 
     @Test
     void getBeerById() throws Exception {
@@ -55,8 +62,8 @@ class BeerControllerTest {
 
         given(beerService.getBeerById(testBeer.getId())).willReturn(testBeer);
 
-        mockMvc.perform(get("/api/v1/beer/"+testBeer.getId())
-                .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/beer/" + testBeer.getId())
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testBeer.getId().toString())))
@@ -66,24 +73,34 @@ class BeerControllerTest {
     }
 
     @Test
-    void testListBeers() throws Exception{
+    void testListBeers() throws Exception {
         given(beerService.listBeers()).willReturn(beerServiceImpl.listBeers());
 
         mockMvc.perform(get("/api/v1/beer")
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.length()",is(3)));
+                .andExpect(jsonPath("$.length()", is(3)));
 
     }
 
 
     @Test
-    void testCreateNewBeer() throws JsonProcessingException {
+    void testCreateNewBeer() throws Exception {
 
         Beer beer = beerServiceImpl.listBeers().get(0);
-        System.out.println(objectMapper.writeValueAsString(beer));
+        //  System.out.println(objectMapper.writeValueAsString(beer));
 
+        beer.setId(null);
+        beer.setVersion(null);
 
+        given(beerService.saveNewBeer(any(Beer.class))).willReturn(beerServiceImpl.listBeers().get(1));
+
+        mockMvc.perform(post("/api/v1/beer")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beer)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
 
     }
 }

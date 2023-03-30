@@ -1,8 +1,11 @@
 package com.springrestmvcproject.spring6restmvc.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springrestmvcproject.spring6restmvc.model.Customer;
+import com.springrestmvcproject.spring6restmvc.service.BeerServiceImpl;
 import com.springrestmvcproject.spring6restmvc.service.CustomerService;
 import com.springrestmvcproject.spring6restmvc.service.CustomerServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -11,8 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -28,7 +33,16 @@ class CustomerControllerTest {
      @MockBean
     CustomerService customerService;
 
-    CustomerServiceImpl customerServiceImpl =new CustomerServiceImpl();
+    CustomerServiceImpl customerServiceImpl;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setup() {
+        customerServiceImpl = new CustomerServiceImpl();
+    }
+
 
 
     @Test
@@ -56,6 +70,25 @@ class CustomerControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()",is(3)));
+
+    }
+
+    @Test
+    void testCreateNewCustomer() throws Exception {
+
+        Customer customer = customerServiceImpl.listCustomers().get(0);
+
+        customer.setId(null);
+        customer.setVersion(null);
+
+        given(customerService.saveNewCustomer(any(Customer.class))).willReturn(customerServiceImpl.listCustomers().get(1));
+
+        mockMvc.perform(post("/api/v1/customer")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(customer)))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(header().exists("Location"));
 
     }
 }
